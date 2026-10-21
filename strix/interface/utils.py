@@ -1286,7 +1286,7 @@ def derive_local_base_name(path_str: str) -> str:
 
 
 def assign_workspace_subdirs(targets_info: list[dict[str, Any]]) -> None:
-    name_counts: dict[str, int] = {}
+    assigned_names: set[str] = set()
 
     for target in targets_info:
         target_type = target["type"]
@@ -1301,12 +1301,14 @@ def assign_workspace_subdirs(targets_info: list[dict[str, Any]]) -> None:
         if base_name is None:
             continue
 
-        count = name_counts.get(base_name, 0) + 1
-        name_counts[base_name] = count
+        candidate = base_name
+        count = 2
+        while candidate in assigned_names:
+            candidate = f"{base_name}-{count}"
+            count += 1
 
-        workspace_subdir = base_name if count == 1 else f"{base_name}-{count}"
-
-        details["workspace_subdir"] = workspace_subdir
+        assigned_names.add(candidate)
+        details["workspace_subdir"] = candidate
 
 
 def is_whitebox_scan(targets_info: list[dict[str, Any]]) -> bool:
